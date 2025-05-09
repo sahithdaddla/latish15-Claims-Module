@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claims Management System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .dashboard {
+            padding: 0rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-top: 0px;
+            margin-bottom: 5px;
+        }
+
+        .header {
+            position: relative;
+            width: 100%;
+            margin: 20px auto 0px;
+            padding: 0px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h2 {
+            background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+            color: white;
+            width: 100%;
+            max-width: 1200px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-top-left-radius: 15px;    
+            border-top-right-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            animation: fadeInDown 1.2s ease-out, gradientShift 15s ease infinite;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 10px;
+        }
+
+        h2::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+            animation: shimmer 6s linear infinite;
+            pointer-events: none;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.5);
+            animation: slideRight 2s ease-out forwards;
+            transform-origin: left;
+        }
+
+        @keyframes fadeInDown {
+            0% {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        @keyframes slideRight {
+            0% {
+                transform: scaleX(0);
+            }
+            100% {
+                transform: scaleX(1);
+            }
+        }
+
+        @keyframes gradientShift {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .claim-form {
+            background: white;
+            padding: 2rem;
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 2rem;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .claim-form h3 {
+            display: flex;
+            align-items: center;
+        }
+
+        .claim-form h3 i {
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-group label {
+            margin-left: 5px;
+            display: block;
+        }
+
+        .character-count {
+            position: absolute;
+            top: 90px;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e1e1;
+            border-radius: 5px;
+            margin-top: 5px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: #5474e5;
+            outline: none;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #6b8afd, #5474e5);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.3s;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .submit-btn i {
+            margin-right: 8px;
+        }
+
+        .submit-btn:hover {
+            background: blue;
+            transform: translateY(-2px);
+        }
+
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .notification-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .notification-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 420px;
+            padding: 0;
+            overflow: hidden;
+            transform: scale(0.8);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .notification-overlay.show .notification-card {
+            transform: scale(1);
+        }
+
+        .notification-header {
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #eee;
+        }
+
+        .notification-header-success {
+            background: linear-gradient(135deg, #43c6ac, #28a745);
+            color: white;
+        }
+
+        .notification-header-error {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .notification-header-warning {
+            background: linear-gradient(135deg, #f7b733, #fc4a1a);
+            color: white;
+        }
+
+        .notification-header-info {
+            background: linear-gradient(135deg, #2193b0, #6dd5ed);
+            color: white;
+        }
+
+        .notification-header h4 {
+            margin: 0;
+            font-size: 1.2rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .notification-header h4 i {
+            margin-right: 10px;
+            font-size: 1.4rem;
+        }
+
+        .notification-content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .notification-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .success-icon {
+            color: #28a745;
+        }
+
+        .error-icon {
+            color: #dc3545;
+        }
+
+        .warning-icon {
+            color: #ffc107;
+        }
+
+        .info-icon {
+            color: #17a2b8;
+        }
+
+        .notification-message {
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .notification-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 0 20px 20px;
+        }
+
+        .notification-btn {
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-btn i {
+            margin-right: 8px;
+        }
+
+        .notification-btn-primary {
+            background: linear-gradient(135deg, #6b8afd, #5474e5);
+            color: white;
+        }
+
+        .notification-btn-primary:hover {
+            background: #4860cc;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notification-btn-secondary {
+            background: #f2f2f2;
+            color: #666;
+        }
+
+        .notification-btn-secondary:hover {
+            background: #e1e1e1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-icon {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .confirm-animation {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+
+        .confirm-animation .circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid #28a745;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        .confirm-animation.complete .circle {
+            border-color: #28a745;
+            animation: none;
+        }
+
+        .confirm-animation.complete::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 40px;
+            height: 20px;
+            border-left: 3px solid #28a745;
+            border-bottom: 3px solid #28a745;
+            transform: translate(-50%, -60%) rotate(-45deg);
+            animation: fadeIn 0.5s forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            .notification-card {
+                max-width: 90%;
+                margin: 0 20px;
+            }
+            
+            .notification-icon {
+                font-size: 2.5rem;
+            }
+            
+            .notification-message {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .notification-header h4 {
+                font-size: 1rem;
+            }
+            
+            .notification-icon {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+            
+            .notification-message {
+                font-size: 0.9rem;
+                margin-bottom: 15px;
+            }
+            
+            .notification-btn {
+                padding: 8px 15px;
+                min-width: 80px;
+                font-size: 0.9rem;
+            }
+            
+            .notification-actions {
+                padding: 0 15px 15px;
+            }
+        }
+
+        .error-message {
+            color: #e53935;
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        .additional-field {
+            display: none;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard {
+                padding: 1rem;
+                max-width: 95%;
+            }
+            
+            .header {
+                margin-top: 15px;
+            }
+            
+            h2 {
+                font-size: 1.6rem;
+                padding: 20px 15px;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .header {
+                padding: 0;
+            }
+            
+            h2 {
+                font-size: 1.4rem;
+                padding: 18px 15px;
+            }
+
+            .claim-form {
+                padding: 1.5rem;
+            }
+
+            .submit-btn {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 0.5rem;
+                max-width: 98%;
+            }
+
+            .header {
+                margin-top: 10px;
+            }
+            
+            h2 {
+                font-size: 1.2rem;
+                padding: 15px 10px;
+            }
+
+            .claim-form {
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                font-size: 14px;
+            }
+            
+            .dashboard {
+                padding: 0.3rem;
+                max-width: 100%;
+            }
+            
+            .header {
+                margin-top: 5px;
+            }
+
+            h2 {
+                font-size: 1rem;
+                padding: 12px 8px;
+                border-top-left-radius: 10px;
+                border-top-right-radius: 10px;
+            }
+            
+            h2 i {
+                margin-right: 5px;
+            }
+
+            .claim-form {
+                padding: 0.75rem;
+                border-bottom-left-radius: 10px;
+                border-bottom-right-radius: 10px;
+            }
+
+            .submit-btn {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            input, select, textarea {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="employeeModule" class="dashboard">
+        <div class="header">
+            <h2><i class="fas fa-user"></i> EMPLOYEE CLAIMS DASHBOARD</h2>
+        </div>
+        <div class="claim-form">
+            <h3><i class="fas fa-plus-circle"></i> NEW CLAIM</h3><br>
+            <div class="form-group">
+                <label for="employeeId">Employee ID</label>
+                <input type="text" id="employeeId" placeholder="Enter Your Employee ID" maxlength="7">
+                <small class="error-message" id="employeeIdError">Invalid Employee ID format. Must be ATS0 followed by 3 digits.</small>
+            </div>
+            <div class="form-group">
+                <label for="claimType">Claim Type</label>
+                <select id="claimType">
+                    <option value="">-- Select Claim Type --</option>
+                    <option value="travel">Travel Claim</option>
+                    <option value="medical">Medical Claim</option>
+                    <option value="training">Training Claim</option>
+                    <option value="wfh">Work From Home Claim</option>
+                </select>
+                <small class="error-message" id="claimTypeError">Please select a claim type.</small>
+            </div>
+            <div class="form-group">
+                <label for="fromDate">From Date</label>
+                <input type="date" id="fromDate">
+                <small class="error-message" id="fromDateError">Please select a from date.</small>
+            </div>
+            <div class="form-group">
+                <label for="toDate">To Date</label>
+                <input type="date" id="toDate">
+                <small class="error-message" id="toDateError">Please select a to date.</small>
+            </div>
+            <div class="form-group additional-field" id="travelLocationGroup">
+                <label for="fromLocation">From Location</label>
+                <input type="text" id="fromLocation" placeholder="Enter From Location" maxlength="30">
+                <small class="error-message" id="fromLocationError">Must contain at least 5 alphabetic characters (letters only).</small>
+            </div>
+            <div class="form-group additional-field" id="toLocationGroup">
+                <label for="toLocation">To Location</label>
+                <input type="text" id="toLocation" placeholder="Enter To Location" maxlength="30">
+                <small class="error-message" id="toLocationError">Must contain at least 5 alphabetic characters (letters only).</small>
+            </div>
+            <div class="form-group additional-field" id="hospitalNameGroup">
+                <label for="hospitalName">Hospital Name</label>
+                <input type="text" id="hospitalName" placeholder="Enter Hospital Name" maxlength="30">
+                <small class="error-message" id="hospitalNameError">Must contain at least 5 alphabetic characters (letters only).</small>
+            </div>
+            <div class="form-group">
+                <label for="claimAmount Krish">Amount</label>
+                <input type="number" id="claimAmount" placeholder="Enter amount" max="9999999">
+                <small class="error-message" id="claimAmountError">Claim amount must be at least ₹500.</small>
+            </div>
+            <div class="form-group">
+                <label for="claimDescription">Description <span class="character-count" id="descriptionCount">0/300</span></label>
+                <textarea id="claimDescription" rows="4" placeholder="Enter claim details" style="resize: none;" minlength="5" maxlength="300"></textarea>
+                <small class="error-message" id="claimDescriptionError">Claim description must be at least 5 alphabetic characters long.</small>
+            </div>
+            <button class="submit-btn" onclick="validateAndConfirm()">
+                <i class="fas fa-paper-plane"></i> Submit Claim
+            </button>
+        </div>
+    </div>
+
+    <div class="notification-overlay" id="notificationOverlay">
+        <div class="notification-card">
+            <div class="notification-header" id="notificationHeader">
+                <h4 id="notificationTitle"><i class="fas fa-info-circle"></i> Notification</h4>
+            </div>
+            <div class="notification-content">
+                <div id="notificationIconContainer">
+                    <i class="fas fa-check-circle notification-icon success-icon" id="notificationIcon"></i>
+                </div>
+                <div id="animationContainer" style="display: none;">
+                    <div class="confirm-animation" id="confirmAnimation">
+                        <div class="circle"></div>
+                    </div>
+                </div>
+                <p class="notification-message" id="notificationMessage">Your message here</p>
+            </div>
+            <div class="notification-actions" id="notificationActions">
+                <button class="notification-btn notification-btn-primary" id="okButton">
+                    <i class="fas fa-check"></i> OK
+                </button>
+                <button class="notification-btn notification-btn-secondary" id="cancelButton">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function sanitizeInput(input) {
+            return input.replace(/\s+/g, ' ').trim();
+        }
+
+        function hasAlphabeticCharacters(text) {
+            return /[A-Za-z]/.test(text);
+        }
+
+        function countAlphabeticChars(text) {
+            return (text.match(/[A-Za-z]/g) || []).length;
+        }
+
+        function countNonSpaceCharacters(text) {
+            return text.replace(/\s/g, '').length;
+        }
+
+        function validateEmployeeId(employeeId) {
+            if (employeeId.includes(' ')) {
+                const errorElement = document.getElementById('employeeIdError');
+                errorElement.textContent = 'Spaces are not allowed in Employee ID.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            if (!employeeId || employeeId.trim() === '') {
+                const errorElement = document.getElementById('employeeIdError');
+                errorElement.textContent = 'Employee ID cannot be empty.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            const pattern = /^ATS0(?!000)\d{3}$/;
+            const isValid = pattern.test(employeeId);
+            
+            const errorElement = document.getElementById('employeeIdError');
+            if (!isValid) {
+                errorElement.textContent = 'Invalid Employee ID format. Must be ATS0 followed by 3 digits.';
+                errorElement.classList.add('visible');
+            } else {
+                errorElement.classList.remove('visible');
+            }
+            
+            return isValid;
+        }
+
+        function validateClaimType(claimType) {
+            const isValid = claimType !== "";
+            
+            const errorElement = document.getElementById('claimTypeError');
+            if (!isValid) {
+                errorElement.classList.add('visible');
+            } else {
+                errorElement.classList.remove('visible');
+            }
+            
+            return isValid;
+        }
+
+        function restrictYearToFourDigits(dateInput) {
+            const value = dateInput.value;
+            if (value) {
+                const [year, month, day] = value.split('-');
+                if (year.length > 4) {
+                    const trimmedYear = year.slice(0, 4);
+                    dateInput.value = `${trimmedYear}-${month}-${day}`;
+                }
+            }
+        }
+
+        function setDateRangeConstraints() {
+            const today = new Date();
+            const twoYearsAgo = new Date(today);
+            twoYearsAgo.setFullYear(today.getFullYear() - 2);
+            
+            const sixMonthsFromNextYear = new Date(today);
+            sixMonthsFromNextYear.setFullYear(today.getFullYear() + 1);
+            sixMonthsFromNextYear.setMonth(today.getMonth() + 6);
+            
+            const minDate = twoYearsAgo.toISOString().split('T')[0];
+            const maxDate = sixMonthsFromNextYear.toISOString().split('T')[0];
+            
+            const fromDateInput = document.getElementById('fromDate');
+            const toDateInput = document.getElementById('toDate');
+
+            fromDateInput.setAttribute('min', minDate);
+            fromDateInput.setAttribute('max', maxDate);
+            toDateInput.setAttribute('min', minDate);
+            toDateInput.setAttribute('max', maxDate);
+        }
+
+        function validateFromDate() {
+            const fromDateInput = document.getElementById('fromDate');
+            const fromDate = fromDateInput.value;
+            const errorElement = document.getElementById('fromDateError');
+            const minDate = new Date(fromDateInput.getAttribute('min'));
+            const maxDate = new Date(fromDateInput.getAttribute('max'));
+            const selectedDate = new Date(fromDate);
+
+            if (!fromDate) {
+                errorElement.textContent = 'Please select a from date.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+
+            if (selectedDate < minDate || selectedDate > maxDate) {
+                errorElement.textContent = 'From date must be between the past 2 years and the next 18 months.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+
+            const [year] = fromDate.split('-');
+            if (year.length !== 4) {
+                errorElement.textContent = 'Year must be exactly 4 digits.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+
+            errorElement.classList.remove('visible');
+            return true;
+        }
+
+        function validateToDate() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDateInput = document.getElementById('toDate');
+            const toDate = toDateInput.value;
+            const errorElement = document.getElementById('toDateError');
+            const minDate = new Date(toDateInput.getAttribute('min'));
+            const maxDate = new Date(toDateInput.getAttribute('max'));
+            const selectedDate = new Date(toDate);
+
+            if (!toDate) {
+                errorElement.textContent = 'Please select a to date.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+
+            if (selectedDate < minDate || selectedDate > maxDate) {
+                errorElement.textContent = 'To date must be between the past 2 years and the next 18 months.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+
+            const [year] = toDate.split('-');
+            if (year.length !== 4) {
+                errorElement.textContent = 'Year must be exactly 4 digits.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+
+            if (new Date(toDate) < new Date(fromDate)) {
+                errorElement.textContent = 'To date must be after or equal to from date.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+
+            errorElement.classList.remove('visible');
+            return true;
+        }
+
+        function validateLocationFields(locationId, errorId) {
+            const location = document.getElementById(locationId).value;
+            const errorElement = document.getElementById(errorId);
+            
+            if (!hasAlphabeticCharacters(location)) {
+                if (location.trim() !== '') {
+                    errorElement.textContent = 'At least one letter is required before spaces are allowed.';
+                    errorElement.classList.add('visible');
+                    return false;
+                }
+            }
+            
+            if (!location || location.trim() === '') {
+                errorElement.textContent = 'This field cannot be empty.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            if (location.includes('  ')) {
+                errorElement.textContent = 'Only single spaces between characters are allowed.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            const alphaCount = countAlphabeticChars(location);
+            
+            if (alphaCount < 5) {
+                errorElement.textContent = 'Must contain at least 5 alphabetic characters (letters only).';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            if (!/^[A-Za-z\s]*$/.test(location)) {
+                errorElement.textContent = 'Only alphabetic characters and Stuarts (letters and spaces are allowed.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            if (location.length > 30) {
+                errorElement.textContent = 'Maximum 30 characters allowed.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            errorElement.classList.remove('visible');
+            return true;
+        }
+
+        function validateClaimAmount(amount) {
+            const errorElement = document.getElementById('claimAmountError');
+            
+            if (!amount || amount < 500 || amount > 9999999) {
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            errorElement.classList.remove('visible');
+            return true;
+        }
+
+        function validateClaimDescription(description) {
+            const errorElement = document.getElementById('claimDescriptionError');
+            
+            if (!description || description.trim() === '') {
+                errorElement.textContent = 'Please provide a claim description.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            if (description.includes('  ')) {
+                errorElement.textContent = 'Only single spaces between words are allowed.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            const alphabeticCharCount = (description.match(/[A-Za-z]/g) || []).length;
+            
+            if (alphabeticCharCount < 5) {
+                errorElement.textContent = 'Claim description must contain at least 5 alphabetic characters.';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            const nonSpaceCount = countNonSpaceCharacters(description);
+            
+            if (nonSpaceCount > 300) {
+                errorElement.textContent = 'Description cannot exceed 300 characters (excluding spaces).';
+                errorElement.classList.add('visible');
+                return false;
+            }
+            
+            errorElement.classList.remove('visible');
+            return true;
+        }
+
+        function filterAdditionalFields() {
+            const claimType = document.getElementById('claimType').value;
+            
+            document.querySelectorAll('.additional-field').forEach(field => {
+                field.style.display = 'none';
+            });
+            
+            if (claimType === 'travel') {
+                document.getElementById('travelLocationGroup').style.display = 'block';
+                document.getElementById('toLocationGroup').style.display = 'block';
+            } else if (claimType === 'medical') {
+                document.getElementById('hospitalNameGroup').style.display = 'block';
+            }
+        }
+
+        function updateCharacterCount() {
+            const description = document.getElementById('claimDescription').value;
+            const count = description.length;
+            document.getElementById('descriptionCount').textContent = `${count}/300`;
+        }
+
+        function showNotification(type, title, message, showCancel = false, callback = null) {
+            const overlay = document.getElementById('notificationOverlay');
+            const header = document.getElementById('notificationHeader');
+            const titleElement = document.getElementById('notificationTitle');
+            const icon = document.getElementById('notificationIcon');
+            const messageElement = document.getElementById('notificationMessage');
+            const okButton = document.getElementById('okButton');
+            const cancelButton = document.getElementById('cancelButton');
+            const iconContainer = document.getElementById('notificationIconContainer');
+            const animationContainer = document.getElementById('animationContainer');
+            
+            header.className = 'notification-header';
+            icon.className = 'fas notification-icon';
+            
+            switch(type) {
+                case 'success':
+                    header.classList.add('notification-header-success');
+                    titleElement.innerHTML = '<i class="fas fa-check-circle"></i> ' + title;
+                    icon.classList.add('fa-check-circle', 'success-icon');
+                    break;
+                case 'error':
+                    header.classList.add('notification-header-error');
+                    titleElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + title;
+                    icon.classList.add('fa-exclamation-circle', 'error-icon');
+                    break;
+                case 'warning':
+                    header.classList.add('notification-header-warning');
+                    titleElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + title;
+                    icon.classList.add('fa-exclamation-triangle', 'warning-icon');
+                    break;
+                case 'info':
+                    header.classList.add('notification-header-info');
+                    titleElement.innerHTML = '<i class="fas fa-info-circle"></i> ' + title;
+                    icon.classList.add('fa-info-circle', 'info-icon');
+                    break;
+                case 'confirm':
+                    header.classList.add('notification-header-info');
+                    titleElement.innerHTML = '<i class="fas fa-question-circle"></i> ' + title;
+                    iconContainer.style.display = 'none';
+                    animationContainer.style.display = 'block';
+                    break;
+            }
+            
+            messageElement.textContent = message;
+            
+            if (showCancel) {
+                cancelButton.style.display = 'flex';
+            } else {
+                cancelButton.style.display = 'none';
+            }
+            
+            overlay.classList.add('show');
+            
+            okButton.onclick = function() {
+                overlay.classList.remove('show');
+                if (callback) setTimeout(callback, 300);
+            };
+            
+            cancelButton.onclick = function() {
+                overlay.classList.remove('show');
+            };
+            
+            if (type === 'confirm') {
+                const confirmAnimation = document.getElementById('confirmAnimation');
+                confirmAnimation.classList.remove('complete');
+                
+                setTimeout(() => {
+                    confirmAnimation.classList.add('complete');
+                }, 1500);
+            }
+        }
+
+        function validateAndConfirm() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('visible');
+            });
+            
+            const employeeId = document.getElementById('employeeId').value;
+            const claimType = document.getElementById('claimType').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const fromLocation = document.getElementById('fromLocation').value;
+            const toLocation = document.getElementById('toLocation').value;
+            const hospitalName = document.getElementById('hospitalName').value;
+            const claimAmount = parseFloat(document.getElementById('claimAmount').value);
+            const claimDescription = sanitizeInput(document.getElementById('claimDescription').value);
+            
+            let isValid = true;
+            
+            isValid = validateEmployeeId(employeeId) && isValid;
+            isValid = validateClaimType(claimType) && isValid;
+            isValid = validateFromDate() && isValid;
+            isValid = validateToDate() && isValid;
+            
+            if (claimType === 'travel') {
+                isValid = validateLocationFields('fromLocation', 'fromLocationError') && isValid;
+                isValid = validateLocationFields('toLocation', 'toLocationError') && isValid;
+                if (fromLocation.toLowerCase() === toLocation.toLowerCase()) {
+                    document.getElementById('toLocationError').textContent = 'From and To Locations must be different.';
+                    document.getElementById('toLocationError').classList.add('visible');
+                    isValid = false;
+                }
+            } else if (claimType === 'medical') {
+                isValid = validateLocationFields('hospitalName', 'hospitalNameError') && isValid;
+            }
+            
+            isValid = validateClaimAmount(claimAmount) && isValid;
+            isValid = validateClaimDescription(claimDescription) && isValid;
+            
+            if (!isValid) {
+                showNotification('error', 'Validation Error', 'Please fill the details in the form to continue.');
+                return;
+            }
+            
+            showNotification(
+                'confirm', 
+                'Confirm Submission', 
+                'Are you sure you want to submit this claim?', 
+                true, 
+                function() {
+                    submitClaim();
+                }
+            );
+        }
+
+        async function submitClaim() {
+            const employeeId = document.getElementById('employeeId').value;
+            const claimType = document.getElementById('claimType').value;
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const fromLocation = document.getElementById('fromLocation').value;
+            const toLocation = document.getElementById('toLocation').value;
+            const hospitalName = document.getElementById('hospitalName').value;
+            const claimAmount = parseFloat(document.getElementById('claimAmount').value);
+            const claimDescription = sanitizeInput(document.getElementById('claimDescription').value);
+            
+            const claim = {
+                id: generateClaimId(),
+                employeeId: employeeId,
+                claimType: claimType,
+                fromDate: fromDate,
+                toDate: toDate,
+                fromLocation: claimType === 'travel' ? fromLocation : null,
+                toLocation: claimType === 'travel' ? toLocation : null,
+                hospitalName: claimType === 'medical' ? hospitalName : null,
+                amount: claimAmount,
+                description: claimDescription,
+                status: 'Pending',
+                submittedDate: new Date().toISOString().split('T')[0]
+            };
+            
+            try {
+                const response = await fetch('http://localhost:3000/api/claims', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(claim),
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to submit claim');
+                }
+                
+                const result = await response.json();
+                showNotification('success', 'Success', `Your claim has been submitted successfully! Claim ID: ${result.id}`);
+                resetForm();
+            } catch (error) {
+                console.error('Error submitting claim:', error);
+                showNotification('error', 'Submission Error', 'Failed to submit claim. Please try again.');
+            }
+        }
+
+        function generateClaimId() {
+            const prefix = 'CLM';
+            const randomNum = Math.floor(10000 + Math.random() * 90000);
+            return `${prefix}${randomNum}`;
+        }
+
+        function resetForm() {
+            document.getElementById('employeeId').value = '';
+            document.getElementById('claimType').value = '';
+            document.getElementById('fromDate').value = '';
+            document.getElementById('toDate').value = '';
+            document.getElementById('fromLocation').value = '';
+            document.getElementById('toLocation').value = '';
+            document.getElementById('hospitalName').value = '';
+            document.getElementById('claimAmount').value = '';
+            document.getElementById('claimDescription').value = '';
+            document.getElementById('descriptionCount').textContent = '0/300';
+            
+            document.querySelectorAll('.additional-field').forEach(field => {
+                field.style.display = 'none';
+            });
+            
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.remove('visible');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setDateRangeConstraints();
+            
+            document.getElementById('claimType').addEventListener('change', filterAdditionalFields);
+            document.getElementById('claimDescription').addEventListener('input', updateCharacterCount);
+            
+            const fromDateInput = document.getElementById('fromDate');
+            const toDateInput = document.getElementById('toDate');
+            
+            fromDateInput.addEventListener('change', validateFromDate);
+            toDateInput.addEventListener('change', validateToDate);
+            
+            fromDateInput.addEventListener('blur', function() {
+                restrictYearToFourDigits(fromDateInput);
+            });
+            
+            toDateInput.addEventListener('blur', function() {
+                restrictYearToFourDigits(toDateInput);
+            });
+            
+            document.getElementById('employeeId').addEventListener('input', function() {
+                this.value = this.value.replace(/\s/g, '');
+                validateEmployeeId(this.value);
+            });
+            
+            document.getElementById('fromLocation').addEventListener('input', function() {
+                this.value = filterLocationInput(this);
+                validateLocationFields('fromLocation', 'fromLocationError');
+            });
+            
+            document.getElementById('toLocation').addEventListener('input', function() {
+                this.value = filterLocationInput(this);
+                validateLocationFields('toLocation', 'toLocationError');
+            });
+            
+            document.getElementById('hospitalName').addEventListener('input', function() {
+                this.value = filterLocationInput(this);
+                validateLocationFields('hospitalName', 'hospitalNameError');
+            });
+            
+            document.getElementById('claimAmount').addEventListener('input', function() {
+                if (this.value.length > 7) {
+                    this.value = this.value.slice(0, 7);
+                }
+                validateClaimAmount(parseFloat(this.value));
+            });
+            
+            document.getElementById('claimDescription').addEventListener('input', function() {
+                this.value = this.value.replace(/\s+/g, ' ');
+                validateClaimDescription(this.value);
+            });
+        });
+
+        function filterLocationInput(inputElement) {
+            const value = inputElement.value;
+            
+            if (!hasAlphabeticCharacters(value) && value.includes(' ')) {
+                inputElement.value = value.replace(/\s/g, '');
+                return inputElement.value;
+            }
+            
+            const singleSpaceValue = value.replace(/\s+/g, ' ');
+            const filteredValue = singleSpaceValue.replace(/[^A-Za-z\s]/g, '');
+            
+            inputElement.value = filteredValue;
+            return filteredValue;
+        }
+    </script>
+</body>
+</html>
