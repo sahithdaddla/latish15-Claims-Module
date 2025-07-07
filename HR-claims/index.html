@@ -664,7 +664,7 @@
             `Are you sure you want to ${action} this claim? This action cannot be undone.`,
             async () => {
                 try {
-                    const response = await fetch(`http://13.60.252.56:3091/api/claims/${claimId}/status`, {
+                    const response = await fetch(`http://16.171.132.110:3091/api/claims/${claimId}/status`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -735,7 +735,7 @@
 
     async function loadDashboard() {
         try {
-            const response = await fetch('http://13.60.252.56:3091/api/claims');
+            const response = await fetch('http://16.171.132.110:3091/api/claims');
             if (!response.ok) {
                 throw new Error('Failed to fetch claims');
             }
@@ -923,7 +923,7 @@
 
     async function clearSelectedRecords(selectedClaimIds) {
         try {
-            const response = await fetch('http://13.60.252.56:3091/api/claims', {
+            const response = await fetch('http://16.171.132.110:3091/api/claims', {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
