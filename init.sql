@@ -1,5 +1,7 @@
 CREATE DATABASE claims_db;
 
+\c claims_db;
+
 CREATE TABLE IF NOT EXISTS claims (
     id VARCHAR(10) PRIMARY KEY,
     employee_id VARCHAR(7) NOT NULL,
@@ -14,3 +16,4 @@ CREATE TABLE IF NOT EXISTS claims (
     status VARCHAR(20) DEFAULT 'Pending',
     submitted_date DATE NOT NULL
 );
+

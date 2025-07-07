@@ -8,7 +8,7 @@ const port = 3091;
 app.use(cors());
 app.use(express.json());
 
-// PostgreSQL database connection
+// PostgreSQL connection
 const pool = new Pool({
     user: 'postgres',
     host: 'postgres',
@@ -17,23 +17,39 @@ const pool = new Pool({
     port: 5432,
 });
 
-// Initialize database (check connection)
+// Initialize DB connection
 async function initializeDatabase() {
     try {
-        await pool.query('SELECT 1'); // Simple query to test connection
-        console.log('Database connection established successfully');
+        await pool.query('SELECT 1');
+        console.log('✅ Database connection successful');
     } catch (error) {
-        console.error('Error connecting to database:', error);
+        console.error('❌ Error connecting to database:', error);
     }
 }
 
-// Submit a new claim
+// Create a new claim
 app.post('/api/claims', async (req, res) => {
+    console.log('📥 Received claim data:', req.body);
+
     const {
-        id, employeeId, claimType, fromDate, toDate,
-        fromLocation, toLocation, hospitalName, amount,
-        description, status, submittedDate
+        id,
+        employeeId,
+        claimType,
+        fromDate,
+        toDate,
+        fromLocation,
+        toLocation,
+        hospitalName,
+        amount,
+        description,
+        status = 'Pending',
+        submittedDate
     } = req.body;
+
+    // Basic validation
+    if (!id || !employeeId || !claimType || !fromDate || !toDate || !amount || !description || !submittedDate) {
+        return res.status(400).json({ error: 'Missing required fields' });
+    }
 
     try {
         const result = await pool.query(`
@@ -51,7 +67,7 @@ app.post('/api/claims', async (req, res) => {
 
         res.status(201).json(result.rows[0]);
     } catch (error) {
-        console.error('Error submitting claim:', error);
+        console.error('❌ Error submitting claim:', error);
         res.status(500).json({ error: 'Failed to submit claim' });
     }
 });
@@ -62,7 +78,7 @@ app.get('/api/claims', async (req, res) => {
         const result = await pool.query('SELECT * FROM claims ORDER BY submitted_date DESC');
         res.json(result.rows);
     } catch (error) {
-        console.error('Error fetching claims:', error);
+        console.error('❌ Error fetching claims:', error);
         res.status(500).json({ error: 'Failed to fetch claims' });
     }
 });
@@ -84,7 +100,7 @@ app.put('/api/claims/:id/status', async (req, res) => {
 
         res.json(result.rows[0]);
     } catch (error) {
-        console.error('Error updating claim status:', error);
+        console.error('❌ Error updating claim status:', error);
         res.status(500).json({ error: 'Failed to update claim status' });
     }
 });
@@ -108,7 +124,7 @@ app.delete('/api/claims', async (req, res) => {
             deletedClaims: result.rows
         });
     } catch (error) {
-        console.error('Error deleting claims:', error);
+        console.error('❌ Error deleting claims:', error);
         res.status(500).json({ error: 'Failed to delete claims' });
     }
 });
@@ -116,5 +132,6 @@ app.delete('/api/claims', async (req, res) => {
 // Start server
 app.listen(port, async () => {
     await initializeDatabase();
-    console.log(`Server running at http://16.171.132.110:${port}`);
+    console.log(`🚀 Server running at http://16.171.132.110:${port}`);
 });
+
