@@ -132,5 +132,6 @@ app.delete('/api/claims', async (req, res) => {
 // Start server
 app.listen(port, async () => {
     await initializeDatabase();
+HEAD
     console.log(`🚀 Server running at http://13.61.3.24:${port}`);
 });
